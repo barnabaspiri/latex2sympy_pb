@@ -1,0 +1,28 @@
+Raw LaTeX string,Sympy command,LaTeX result
+\frac{d}{dx} x,"Derivative(x, x)",1
+\frac{d}{dx} tx,"Derivative(t*x, x)",t
+\frac{d}{dx} (t x),"Derivative(t*x, x)",t
+\frac{d}{dt} x,"Derivative(x, t)",0
+\frac{d}{dx} [ \tan x ],"Derivative(tan(x), x)",\frac{1}{\cos^{2}{(x)}}
+\frac{d f(x)}{dx},"Derivative(f(x), x)",\frac{d}{d x} f{(x)}
+\frac{d}{dx} \sin x,"Derivative(sin(x), x)",\cos{(x)}
+\frac{d}{dx} e^{x},"Derivative(exp(x), x)",e^{x}
+\frac{d}{dx} x^2,"Derivative(x**2, x)",2 x
+"\frac{\partial}{\partial x} f(x,y)","Derivative(f(x, y), x)","\frac{\partial}{\partial x} f{(x,y)}"
+\frac{d^2}{dx^2} x^3,d**2*x**3/(dx**2),\frac{d^{2} x^{3}}{dx^{2}}
+\frac{d}{dx} \frac{d}{dx} x^3,"Derivative(x**3, (x, 2))",6 x
+\int x dx,"Integral(x, x)",\frac{x^{2}}{2}
+\int x d\theta,"Integral(x, theta)",\theta x
+\int (x^2 - y)dx,"Integral(x**2 - y, x)",x (\frac{x^{2}}{3} - y)
+\int_a^b x dx,"Integral(x, (x, a, b))",- \frac{a^{2}}{2} + \frac{b^{2}}{2}
+\int_{a}^{b} \frac{dt}{t},"Integral(1/t, (t, a, b))",- \ln{(a)} + \ln{(b)}
+\int \frac{dz}{z},"Integral(1/z, z)",\ln{(z)}
+\lim_{x \to 3} a,"Limit(a, x, 3, dir='+')",a
+\lim_{x \to \infty} \frac{1}{x},"Limit(1/x, x, oo, dir='-')",0
+\lim_{x \to 0^{+}} \frac{1}{x},"Limit(1/x, x, 0, dir='+')",\infty
+\frac{d}{dx}    ( x  y ),"Derivative(x*y, x)",y
+\frac{d}{dx}x,"Derivative(x, x)",1
+d/dx x,d/((dx*x)),\frac{d}{dx x}
+\frac{d}{dx} 1,"Derivative(1, x)",0
+\int^{ }_{ } x dx,"Integral(x, x)",\frac{x^{2}}{2}
+\int_{ }^{ } x dx,"Integral(x, x)",\frac{x^{2}}{2}

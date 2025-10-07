@@ -81,7 +81,9 @@ def latex2sympy(sympy: str, variable_values={}):
 
     # stream input
     stream = InputStream(sympy)
+
     lex = PSLexer(stream)
+
     lex.removeErrorListeners()
     lex.addErrorListener(matherror)
 
@@ -475,14 +477,22 @@ def convert_postfix_list(arr, i=0):
             else:
                 return mul_flat(res, rh)
     elif isinstance(res, tuple) or isinstance(res, list) or isinstance(res, dict):
+        # Special-case: a single-element list/tuple containing a Symbol
+        # is used elsewhere to indicate a pending derivative operator
+        # (e.g. \frac{d}{dx} without the numerator expression). In
+        # that case we should treat it as the derivative marker and
+        # apply it to the following expression. For other lists
+        # (like rows/cols returning lists), return as-is.
+        if (isinstance(res, (list, tuple)) and len(res) == 1
+                and isinstance(res[0], sympy.Symbol)):
+            # derivative marker: res[0] is the 'wrt' symbol
+            wrt = res[0]
+            if i == len(arr) - 1:
+                raise Exception("Expected expression for derivative")
+            else:
+                expr = convert_postfix_list(arr, i + 1)
+                return sympy.Derivative(expr, wrt)
         return res
-    else:  # must be derivative
-        wrt = res[0]
-        if i == len(arr) - 1:
-            raise Exception("Expected expression for derivative")
-        else:
-            expr = convert_postfix_list(arr, i + 1)
-            return sympy.Derivative(expr, wrt)
 
 
 def do_subs(expr, at):
@@ -497,8 +507,7 @@ def do_subs(expr, at):
     elif at.equality():
         lh = convert_expr(at.equality().expr(0))
         rh = convert_expr(at.equality().expr(1))
-        return expr.subs(lh, rh)
-
+    return expr.subs(lh, rh)
 
 def convert_postfix(postfix):
     if hasattr(postfix, 'exp'):
@@ -635,18 +644,29 @@ def convert_atom(atom):
             else:
                 subscript_text = '_' + subscript_inner_text
 
-        # construct the symbol using the text and optional subscript
-        atom_symbol = sympy.Symbol(atom_text + subscript_text, real=is_real)
+        # construct a safe string key for the symbol (some parts may not be
+        # plain strings when coming from parsed nodes). Use StrPrinter as a
+        # fallback so we don't try to concatenate non-string types.
+        try:
+            key = atom_text + subscript_text
+        except Exception:
+            key = StrPrinter().doprint(atom_text) + StrPrinter().doprint(subscript_text)
+
+        # construct the symbol using the safe key
+        atom_symbol = sympy.Symbol(key, real=is_real)
         # for matrix symbol
         matrix_symbol = None
         global var
-        if atom_text + subscript_text in var:
+        if key in var:
             try:
-                rh = var[atom_text + subscript_text]
+                rh = var[key]
                 shape = sympy.shape(rh)
-                matrix_symbol = sympy.MatrixSymbol(atom_text + subscript_text, shape[0], shape[1])
-                variances[matrix_symbol] = variances[atom_symbol]
-            except:
+                matrix_symbol = sympy.MatrixSymbol(key, shape[0], shape[1])
+                # If there's a corresponding plain atom symbol in variances,
+                # map the matrix symbol to the same variance if available.
+                if atom_symbol in variances:
+                    variances[matrix_symbol] = variances[atom_symbol]
+            except Exception:
                 pass
 
         # find the atom's superscript, and return as a Pow if found
@@ -685,8 +705,8 @@ def convert_atom(atom):
         except (TypeError, ValueError):
             return sympy.Number(s)
     elif atom.DIFFERENTIAL():
-        var = get_differential_var(atom.DIFFERENTIAL())
-        return sympy.Symbol('d' + var.name, real=is_real)
+        dvar = get_differential_var(atom.DIFFERENTIAL())
+        return sympy.Symbol('d' + dvar.name, real=is_real)
     elif atom.mathit():
         text = rule2text(atom.mathit().mathit_text())
         return sympy.Symbol(text, real=is_real)
