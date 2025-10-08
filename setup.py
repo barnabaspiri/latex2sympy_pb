@@ -5,16 +5,16 @@ here = path.abspath(path.dirname(__file__))
 
 
 setup(
-    name="latex2sympy2",
+    name="latex2sympy2_pb",
     version="1.9.0",
     description='Convert latex to sympy with ANTLR and support Matrix, Linear Algebra and CAS functions.',
     long_description_content_type='text/markdown',
     long_description=open(path.join(here, "README.md"), encoding='utf-8').read(),
     # The project's main homepage.
-    url='https://github.com/OrangeX4/latex2sympy',
+    url='https://github.com/barnabaspiri/latex2sympy_pb',
     # Author details
-    author='OrangeX4',
-    author_email='318483724@qq.com',
+    author='barnabaspiri',
+    author_email='barnabaspiri@gmail.com',
     # Choose your license
     license='MIT',
     classifiers=[
@@ -35,11 +35,12 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.13.7',
     ],
     packages=find_packages(exclude=('tests')),
     py_modules=['asciimath_printer', 'latex2sympy2'],
     install_requires=[
-        'sympy>=1.4',
-        'antlr4-python3-runtime==4.7.2'
+        'sympy>=1.14.0',
+        'antlr4-python3-runtime==4.13.2'
     ],
 )
